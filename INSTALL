@@ -1,0 +1,29 @@
+To install fssort, follow these steps:
+
+1) Install the following prerequisites
+
+   For compilation:
+       cmake from
+       http://www.cmake.org/
+
+       pkgconfig from
+       http://www.freedesktop.org/wiki/Software/pkg-config/
+
+   For compilation and runtime:
+       e2fsprogs libraries from
+       http://e2fsprogs.sourceforge.net/
+
+2) Change directory into the top of the fssort source tree
+
+3) Configure the build system by calling
+   cmake .
+
+4) Compile the program
+   make
+
+5) Install the program
+   make install
+
+6) If you wish to use fssort as an ordinary user, enable the setuid bit on the
+   executable
+   chmod u+s $(which fssort)

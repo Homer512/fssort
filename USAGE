@@ -1,0 +1,17 @@
+fssort works as a standard input/standard output filter similar to e.g. sort.
+It reads a list of file and directory names from standard input and writes a
+reordered list to standard output.
+
+A simple application would be
+find /source -type f | fssort | cpio -pd /destination
+which copies all ordinary files in /source to /destination
+
+fssort can only handle a limited number of filesystems (at the moment Ext2-4).
+It also typically requires root permissions to access the filesystems. Files on
+other filesystems or missing permissions are handled gracefully. Those files are
+written directly to standard output.
+
+Note that fssort does not treat directories differently from files. This means a
+directory may appear in the output after the files it contains. For example if
+you wish to use fssort with tar, do it like this
+find /source | fssort | tar -c -T - --no-recursion -f destination.tar
