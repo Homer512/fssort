@@ -29,6 +29,7 @@ namespace fs {
       typedef const T* const_pointer;
       typedef T& reference;
       typedef const T& const_reference;
+    private:
       T* m;
     protected:
       MemberPtrBase(const MemberPtrBase& o)
