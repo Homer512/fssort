@@ -16,13 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with FsSort.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "memberptr.hpp"
 namespace fs {
   namespace internal {
     class FileSorterPrivate;
   }
   class FileSorter
   {
-    internal::FileSorterPrivate* d;
+    OwningMemberPtr<internal::FileSorterPrivate> d;
     friend class internal::FileSorterPrivate;
     FileSorter(const FileSorter&);
     FileSorter& operator=(const FileSorter&);

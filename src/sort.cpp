@@ -182,9 +182,7 @@ namespace fs {
     : d(new internal::FileSorterPrivate(line_end))
     {}
   FileSorter::~FileSorter()
-  {
-    delete d;
-  }
+  {}
   void FileSorter::filter_stdin()
   {
     FileScanner scanner(d->blockmap);
