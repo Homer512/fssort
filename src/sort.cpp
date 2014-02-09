@@ -204,7 +204,7 @@ namespace fs {
 	void FileSorter::filter_stdin()
 	{
 		FileScanner scanner(d->blockmap, d->notifier);
-		for(std::string buf; std::getline(std::cin, buf); ) {
+		for(std::string buf; std::getline(std::cin, buf, d->line_end); ) {
 			if(scanner(buf)) {
 				d->notifier->log("Skipping file %s", buf.c_str());
 				d->write(buf);
