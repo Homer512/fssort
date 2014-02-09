@@ -13,6 +13,9 @@ To install fssort, follow these steps:
        e2fsprogs libraries from
        http://e2fsprogs.sourceforge.net/
 
+	   libcap library from
+	   http://www.friedhoff.org/posixfilecaps.html
+
 2) Change directory into the top of the fssort source tree
 
 3) Configure the build system by calling
@@ -23,7 +26,3 @@ To install fssort, follow these steps:
 
 5) Install the program
    make install
-
-6) If you wish to use fssort as an ordinary user, enable the setuid bit on the
-   executable
-   chmod u+s $(which fssort)
