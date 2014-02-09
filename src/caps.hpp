@@ -21,7 +21,6 @@
 #include "memberptr.hpp"
 
 namespace fs {
-	class Notifier;
 	namespace internal {
 		class CapabilitiesPrivate;
 	}
@@ -31,11 +30,12 @@ namespace fs {
 		Capabilities(const Capabilities&);
 		Capabilities& operator=(const Capabilities&);
 	public:
-		Capabilities(Notifier* notifier);
+		Capabilities();
 		~Capabilities();
 		bool drop_suid();
 		bool raise_caps();
 		bool drop_caps();
+		bool is_supported() const;
 	};
 	class RaisedCaps
 	{

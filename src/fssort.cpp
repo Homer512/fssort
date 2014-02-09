@@ -29,6 +29,8 @@
 
 int main(int argc, char** argv)
 {
+	fs::Capabilities caps;
+	caps.drop_suid();
 	fs::CmdOptions opts;
 	opts.parse(argc, argv);
 	if(! opts.is_valid())
@@ -37,12 +39,13 @@ int main(int argc, char** argv)
 		return EXIT_SUCCESS;
 	std::auto_ptr<fs::Notifier>
 		notifier(fs::Notifier::create(opts.is_verbose()));
-	fs::Capabilities caps(notifier.get());
-	caps.drop_suid();
 	/* After opt parsing we only use stdio for stderr and iostreams for cin,
 	   cout. So syncing is unnecessary */
 	std::ios::sync_with_stdio(false);
 	char line_end = opts.is_zeroterm() ? '\0' : '\n';
+	if(! caps.is_supported())
+		notifier->log("Applying capabilities failed."
+					  " Permissions may be missing");
 	fs::FileSorter sorter(line_end, notifier.get(), &caps);
 	sorter.filter_stdin();
 	sorter.print_sorted();
