@@ -196,12 +196,14 @@ namespace fs {
 	void FileSorter::print_sorted()
 	{
 		blockmap_t& blockmap = d->blockmap;
-		for(blockmap_t::iterator i = blockmap.begin(); i != blockmap.end(); ) {
-			d->write(i->second.first);
-			blk64_t offset = i->second.second;
+		for(blockmap_t::iterator i = blockmap.begin(),
+				end = blockmap.end(); i != end; ) {
+			const blockmap_t::mapped_type& v = i->second;
+			d->write(v.first);
+			blk64_t offset = v.second;
 			blockmap.erase(i);
 			i = blockmap.lower_bound(offset);
-			if(i == blockmap.end())
+			if(i == end)
 				i = blockmap.begin();
 		}
 	}
