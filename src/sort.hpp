@@ -18,19 +18,19 @@
  */
 #include "memberptr.hpp"
 namespace fs {
-  namespace internal {
-    class FileSorterPrivate;
-  }
-  class FileSorter
-  {
-    OwningMemberPtr<internal::FileSorterPrivate> d;
-    friend class internal::FileSorterPrivate;
-    FileSorter(const FileSorter&);
-    FileSorter& operator=(const FileSorter&);
-  public:
-    FileSorter(char line_end);
-    ~FileSorter();
-    void filter_stdin();
-    void print_sorted();
-  };
+	namespace internal {
+		class FileSorterPrivate;
+	}
+	class FileSorter
+	{
+		OwningMemberPtr<internal::FileSorterPrivate> d;
+		friend class internal::FileSorterPrivate;
+		FileSorter(const FileSorter&);
+		FileSorter& operator=(const FileSorter&);
+	public:
+		FileSorter(char line_end);
+		~FileSorter();
+		void filter_stdin();
+		void print_sorted();
+	};
 } // namespace fs

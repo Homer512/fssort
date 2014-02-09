@@ -20,8 +20,8 @@
 
 int main(int argc, char** argv)
 {
-  fs::FileSorter sorter('\n' /*line_end*/);
-  sorter.filter_stdin();
-  sorter.print_sorted();
-  return 0;
+	fs::FileSorter sorter('\n' /*line_end*/);
+	sorter.filter_stdin();
+	sorter.print_sorted();
+	return 0;
 }
