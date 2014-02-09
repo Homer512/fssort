@@ -30,6 +30,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ADD_CFLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADD_CFLAGS}")
 
 set(SRC
+  src/caps.cpp
   src/fssort.cpp
   src/opts.cpp
   src/sort.cpp
@@ -41,7 +42,8 @@ pkg_check_modules(EXT2FS ext2fs)
 pkg_check_modules(COM_ERR com_err)
 link_directories(
   ${EXT2FS_LIBRARY_DIRS}
-  ${COM_ERR_LIBRARY_DIRS})
+  ${COM_ERR_LIBRARY_DIRS}
+)
 include_directories(
   ${EXT2FS_INCLUDE_DIRS}
   ${COM_ERR_INCLUDE_DIRS}
@@ -49,6 +51,7 @@ include_directories(
 target_link_libraries(fssort
   ${EXT2FS_LIBRARIES}
   ${COM_ERR_LIBRARIES}
+  cap
 )
 
 install(TARGETS fssort
