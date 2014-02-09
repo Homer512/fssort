@@ -93,7 +93,7 @@ namespace fs {
 			typedef std::bitset<_OPTIONS_END> optset_t;
 			optset_t opts;
 			CmdOptionsPrivate()
-				: opts(IS_VALID | IS_RUN)
+				: opts(1 << IS_VALID | 1 << IS_RUN)
 			{}
 		};
 	} // namespace internal
