@@ -64,13 +64,12 @@ namespace {
 		}
 		virtual void errno_error(const char* format, ...)
 		{
-			int err = errno;
-			std::fprintf(::stderr, "fssort: ");
+			std::fprintf(::stderr, "fssort: %s ", std::strerror(errno));
 			va_list args;
 			va_start(args, format);
 			std::vfprintf(::stderr, format, args);
 			va_end(args);
-			std::fprintf(::stderr, ". %s\n", std::strerror(err));
+			std::fprintf(::stderr, "\n");
 		}
 	};
 	class NormalNotifier: public fs::Notifier
