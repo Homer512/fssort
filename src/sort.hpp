@@ -23,6 +23,7 @@
 
 namespace fs {
 	class Notifier;
+	class Capabilities;
 	namespace internal {
 		class FileSorterPrivate;
 	}
@@ -33,7 +34,7 @@ namespace fs {
 		FileSorter(const FileSorter&);
 		FileSorter& operator=(const FileSorter&);
 	public:
-		FileSorter(char line_end, Notifier* notifier);
+		FileSorter(char line_end, Notifier* notifier, Capabilities* caps);
 		~FileSorter();
 		void filter_stdin();
 		void print_sorted();

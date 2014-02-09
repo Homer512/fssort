@@ -20,6 +20,7 @@
 // using major, minor from types.h
 #include "sort.hpp"
 #include "verbose.hpp"
+#include "caps.hpp"
 #include <ext2fs/ext2fs.h>
 // using ext2_*, errcode_t
 #include <sys/types.h>
@@ -87,6 +88,7 @@ namespace {
 		};
 		blockmap_t& blockmap;
 		fs::Notifier* notifier;
+		fs::MemberPtr<fs::Capabilities> caps;
 		char* blockbuf;
 		FsState* fs_state;
 		dev_t cur_dev;
@@ -96,9 +98,11 @@ namespace {
 		FileScanner(const FileScanner&);
 		FileScanner& operator=(const FileScanner&);
 	public:
-		FileScanner(blockmap_t& blockmap, fs::Notifier* notifier)
+		FileScanner(blockmap_t& blockmap, fs::Notifier* notifier,
+					fs::Capabilities* caps)
 			: blockmap(blockmap),
 			  notifier(notifier),
+			  caps(caps),
 			  blockbuf(NULL),
 			  fs_state(&uninit_state)
 		{}
@@ -144,9 +148,12 @@ namespace {
 		char devname[11 /*/dev/block/*/ + 8 /*255:255\0*/];
 		std::snprintf(devname, sizeof(devname), "/dev/block/%u:%u", maj, min);
 		ext2_filsys fs;
-		errcode_t err =
-			ext2fs_open(devname, EXT2_FLAG_64BITS, 0 /*superblock*/,
-						0 /*blk size*/, unix_io_manager, &fs);
+		errcode_t err;
+		{
+			fs::RaisedCaps privilege(parent.caps.get());
+			err = ext2fs_open(devname, EXT2_FLAG_64BITS, 0 /*superblock*/,
+							  0 /*blk size*/, unix_io_manager, &fs);
+		}
 		if(err) {
 			parent.notifier->ext_error(err, "opening filesystem %s",
 									   devname);
@@ -184,9 +191,11 @@ namespace fs {
 		{
 			blockmap_t blockmap;
 			Notifier* notifier;
+			MemberPtr<Capabilities> caps;
 			char line_end;
-			FileSorterPrivate(char line_end, Notifier* notifier)
+			FileSorterPrivate(char line_end, Notifier* notifier, Capabilities* caps)
 				: notifier(notifier),
+				  caps(caps),
 				  line_end(line_end)
 			{}
 			void write(const std::string& str)
@@ -196,14 +205,14 @@ namespace fs {
 		};
 	} // namespace internal
 
-	FileSorter::FileSorter(char line_end, Notifier* notifier)
-		: d(new internal::FileSorterPrivate(line_end, notifier))
+	FileSorter::FileSorter(char line_end, Notifier* notifier, Capabilities* caps)
+		: d(new internal::FileSorterPrivate(line_end, notifier, caps))
     {}
 	FileSorter::~FileSorter()
 	{}
 	void FileSorter::filter_stdin()
 	{
-		FileScanner scanner(d->blockmap, d->notifier);
+		FileScanner scanner(d->blockmap, d->notifier, d->caps.get());
 		for(std::string buf; std::getline(std::cin, buf, d->line_end); ) {
 			if(scanner(buf)) {
 				d->notifier->log("Skipping file %s", buf.c_str());
