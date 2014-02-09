@@ -24,7 +24,8 @@ if(NOT CMAKE_BUILD_TYPE)
   message(WARNING "No build type selected, default to Release")
   set(CMAKE_BUILD_TYPE "Release")
 endif()
-set(ADD_CFLAGS "-Wall")
+
+set(ADD_CFLAGS "-Wall ${EXT2FS_CFLAGS} ${COM_ERR_CFLAGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ADD_CFLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADD_CFLAGS}")
 
@@ -32,16 +33,22 @@ set(SRC
   src/fssort.cpp
   src/opts.cpp
   src/sort.cpp
+  src/verbose.cpp
 )
 add_executable(fssort ${SRC})
 
 pkg_check_modules(EXT2FS ext2fs)
-link_directories(${EXT2FS_LIBRARY_DIRS})
+pkg_check_modules(COM_ERR com_err)
+link_directories(
+  ${EXT2FS_LIBRARY_DIRS}
+  ${COM_ERR_LIBRARY_DIRS})
 include_directories(
   ${EXT2FS_INCLUDE_DIRS}
+  ${COM_ERR_INCLUDE_DIRS}
 )
 target_link_libraries(fssort
   ${EXT2FS_LIBRARIES}
+  ${COM_ERR_LIBRARIES}
 )
 
 install(TARGETS fssort

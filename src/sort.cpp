@@ -19,8 +19,9 @@
 #define _BSD_SOURCE
 // using major, minor from types.h
 #include "sort.hpp"
+#include "verbose.hpp"
 #include <ext2fs/ext2fs.h>
-// using ext2_*
+// using ext2_*, errcode_t
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -85,6 +86,7 @@ namespace {
 			virtual ext2_filsys open(FileScanner& parent, dev_t dev);
 		};
 		blockmap_t& blockmap;
+		fs::Notifier* notifier;
 		char* blockbuf;
 		FsState* fs_state;
 		dev_t cur_dev;
@@ -94,8 +96,9 @@ namespace {
 		FileScanner(const FileScanner&);
 		FileScanner& operator=(const FileScanner&);
 	public:
-		FileScanner(blockmap_t& blockmap)
+		FileScanner(blockmap_t& blockmap, fs::Notifier* notifier)
 			: blockmap(blockmap),
+			  notifier(notifier),
 			  blockbuf(NULL),
 			  fs_state(&uninit_state)
 		{}
@@ -106,8 +109,10 @@ namespace {
 		bool operator()(const std::string& fname)
 		{
 			struct stat s;
-			if(stat(fname.c_str(), &s))
+			if(stat(fname.c_str(), &s)) {
+				notifier->errno_error("reading stats of %s", fname.c_str());
 				return true;
+			}
 			ino_t inode = s.st_ino;
 			dev_t device = s.st_dev;
 			ext2_filsys fs = fs_state->open(*this, device);
@@ -116,10 +121,15 @@ namespace {
 			blockbuf =
 				static_cast<char*>(std::realloc(blockbuf, 3 * s.st_blksize));
 			BlockIter blk;
-			if(ext2fs_block_iterate3(fs, inode, BLOCK_FLAG_DATA_ONLY
-									 | BLOCK_FLAG_READ_ONLY, blockbuf,
-									 &BlockIter::iter, &blk))
+			errcode_t err =
+				ext2fs_block_iterate3(fs, inode, BLOCK_FLAG_DATA_ONLY
+									  | BLOCK_FLAG_READ_ONLY, blockbuf,
+									  &BlockIter::iter, &blk);
+			if(err) {
+				notifier->ext_error(err, "iterating physical blocks of %s",
+									fname.c_str());
 				return true;
+			}
 			blockmap_t::mapped_type m(fname, blk.last);
 			blockmap_t::value_type v(blk.first, m);
 			blockmap.insert(v);
@@ -134,8 +144,12 @@ namespace {
 		char devname[11 /*/dev/block/*/ + 8 /*255:255\0*/];
 		std::snprintf(devname, sizeof(devname), "/dev/block/%u:%u", maj, min);
 		ext2_filsys fs;
-		if(ext2fs_open(devname, EXT2_FLAG_64BITS, 0 /*superblock*/,
-					   0 /*blk size*/, unix_io_manager, &fs)) {
+		errcode_t err =
+			ext2fs_open(devname, EXT2_FLAG_64BITS, 0 /*superblock*/,
+						0 /*blk size*/, unix_io_manager, &fs);
+		if(err) {
+			parent.notifier->ext_error(err, "opening filesystem %s",
+									   devname);
 			parent.fs_state = &parent.invalid_state;
 			fs = NULL;
 		}
@@ -169,9 +183,11 @@ namespace fs {
 		struct FileSorterPrivate
 		{
 			blockmap_t blockmap;
+			Notifier* notifier;
 			char line_end;
-			FileSorterPrivate(char line_end)
-				: line_end(line_end)
+			FileSorterPrivate(char line_end, Notifier* notifier)
+				: notifier(notifier),
+				  line_end(line_end)
 			{}
 			void write(const std::string& str)
 			{
@@ -180,17 +196,19 @@ namespace fs {
 		};
 	} // namespace internal
 
-	FileSorter::FileSorter(char line_end)
-		: d(new internal::FileSorterPrivate(line_end))
+	FileSorter::FileSorter(char line_end, Notifier* notifier)
+		: d(new internal::FileSorterPrivate(line_end, notifier))
     {}
 	FileSorter::~FileSorter()
 	{}
 	void FileSorter::filter_stdin()
 	{
-		FileScanner scanner(d->blockmap);
+		FileScanner scanner(d->blockmap, d->notifier);
 		for(std::string buf; std::getline(std::cin, buf); ) {
-			if(scanner(buf))
+			if(scanner(buf)) {
+				d->notifier->log("Skipping file %s", buf.c_str());
 				d->write(buf);
+			}
 		}
 	}
 	void FileSorter::print_sorted()

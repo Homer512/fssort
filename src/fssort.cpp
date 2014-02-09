@@ -18,10 +18,13 @@
  */
 #include "sort.hpp"
 #include "opts.hpp"
+#include "verbose.hpp"
 #include <cstdlib>
 // using EXIT_SUCCESS, EXIT_FAILURE
 #include <ios>
 // using std::ios
+#include <memory>
+// using std::auto_ptr
 
 int main(int argc, char** argv)
 {
@@ -35,7 +38,9 @@ int main(int argc, char** argv)
 	   cout. So syncing is unnecessary */
 	std::ios::sync_with_stdio(false);
 	char line_end = opts.is_zeroterm() ? '\0' : '\n';
-	fs::FileSorter sorter(line_end);
+	std::auto_ptr<fs::Notifier>
+		notifier(fs::Notifier::create(opts.is_verbose()));
+	fs::FileSorter sorter(line_end, notifier.get());
 	sorter.filter_stdin();
 	sorter.print_sorted();
 	return EXIT_SUCCESS;

@@ -16,28 +16,20 @@
  * You should have received a copy of the GNU General Public License
  * along with FsSort.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _FS_SORT_HPP
-#define _FS_SORT_HPP
-
-#include "memberptr.hpp"
-
+#ifndef _FS_VERBOSE_HPP
+#define _FS_VERBOSE_HPP
 namespace fs {
-	class Notifier;
-	namespace internal {
-		class FileSorterPrivate;
-	}
-	class FileSorter
+	class Notifier
 	{
-		OwningMemberPtr<internal::FileSorterPrivate> d;
-		friend class internal::FileSorterPrivate;
-		FileSorter(const FileSorter&);
-		FileSorter& operator=(const FileSorter&);
 	public:
-		FileSorter(char line_end, Notifier* notifier);
-		~FileSorter();
-		void filter_stdin();
-		void print_sorted();
+		virtual ~Notifier();
+		virtual void log(const char* format, ...)
+			__attribute__((format(printf, 2, 3))) = 0;
+		virtual void ext_error(long err, const char* format, ...)
+			__attribute__((format(printf, 3, 4))) = 0;
+		virtual void errno_error(const char* format, ...)
+			__attribute__((format(printf, 2, 3))) = 0;
+		static Notifier* create(bool verbose);
 	};
-} // namespace fs
-
-#endif /* _FS_SORT_HPP */
+}
+#endif /* _FS_VERBOSE_HPP */
