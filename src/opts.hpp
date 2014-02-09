@@ -16,27 +16,28 @@
  * You should have received a copy of the GNU General Public License
  * along with FsSort.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "sort.hpp"
-#include "opts.hpp"
-#include <cstdlib>
-// using EXIT_SUCCESS, EXIT_FAILURE
-#include <ios>
-// using std::ios
+#ifndef _FS_OPTS_HPP
+#define _FS_OPTS_HPP
+#include "memberptr.hpp"
 
-int main(int argc, char** argv)
-{
-	fs::CmdOptions opts;
-	opts.parse(argc, argv);
-	if(! opts.is_valid())
-		return EXIT_FAILURE;
-	if(! opts.is_run())
-		return EXIT_SUCCESS;
-	/* After opt parsing we only use stdio for stderr and iostreams for cin,
-	   cout. So syncing is unnecessary */
-	std::ios::sync_with_stdio(false);
-	char line_end = opts.is_zeroterm() ? '\0' : '\n';
-	fs::FileSorter sorter(line_end);
-	sorter.filter_stdin();
-	sorter.print_sorted();
-	return EXIT_SUCCESS;
-}
+namespace fs {
+	namespace internal {
+		class CmdOptionsPrivate;
+	}
+	class CmdOptions
+	{
+		OwningMemberPtr<internal::CmdOptionsPrivate> d;
+		CmdOptions(const CmdOptions&);
+		CmdOptions& operator=(const CmdOptions&);
+	public:
+		CmdOptions();
+		~CmdOptions();
+		bool is_valid() const;
+		bool is_run() const;
+		bool is_verbose() const;
+		bool is_zeroterm() const;
+		void parse(int argc, char** argv);
+	};
+} // namespace fs
+
+#endif /* _FS_OPTS_HPP */

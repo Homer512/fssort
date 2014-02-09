@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with FsSort.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef _FS_SORT_HPP
+#define _FS_SORT_HPP
+
 #include "memberptr.hpp"
 namespace fs {
 	namespace internal {
@@ -34,3 +37,5 @@ namespace fs {
 		void print_sorted();
 	};
 } // namespace fs
+
+#endif /* _FS_SORT_HPP */

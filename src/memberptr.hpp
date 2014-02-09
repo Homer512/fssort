@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with FsSort.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef _FS_MEMBERPTR_HPP
+#define _FS_MEMBERPTR_HPP
+
 #include <utility>
 // using std::swap
 namespace fs {
@@ -129,3 +132,5 @@ namespace fs {
 	{ a.swap(b); }
 
 } // namespace fs
+
+#endif /* _FS_MEMBERPTR_HPP */

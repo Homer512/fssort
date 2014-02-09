@@ -30,6 +30,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADD_CFLAGS}")
 
 set(SRC
   src/fssort.cpp
+  src/opts.cpp
   src/sort.cpp
 )
 add_executable(fssort ${SRC})
